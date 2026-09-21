@@ -1,0 +1,1027 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>لقطات · النموذج الأولي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Visual idea: an editor's light table. The source video is a dark film
+   strip; extracted moments are yellow grease-pencil marks on it. */
+:root {
+  --bg:#edf1f4; --surface:#fff; --surface-2:#f5f7f9; --ink:#111a24; --ink-2:#4a5866;
+  --line:#d5dde4; --strip:#16202b; --strip-2:#243241; --mark:#f2c230; --mark-ink:#1b1400;
+  --primary:#12324a; --primary-ink:#fff; --danger:#b42318; --danger-bg:#fdecea;
+  --notice-bg:#fff6d6; --focus:#2f7fd1; --radius:14px; --radius-sm:9px;
+  --font:"Readex Pro", system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0f1620; --surface:#17212d; --surface-2:#1d2936; --ink:#e8eef4; --ink-2:#9fb0c0;
+    --line:#2a3848; --strip:#0a0f15; --strip-2:#1b2735; --primary:#f2c230; --primary-ink:#1b1400;
+    --danger:#ff8a7a; --danger-bg:#3a1916; --notice-bg:#33290b; --focus:#7cb8ff;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:#0f1620; --surface:#17212d; --surface-2:#1d2936; --ink:#e8eef4; --ink-2:#9fb0c0;
+  --line:#2a3848; --strip:#0a0f15; --strip-2:#1b2735; --primary:#f2c230; --primary-ink:#1b1400;
+  --danger:#ff8a7a; --danger-bg:#3a1916; --notice-bg:#33290b; --focus:#7cb8ff;
+}
+html { scroll-padding-top:env(safe-area-inset-top,0px); -webkit-text-size-adjust:100%; background:var(--bg); }
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--font); line-height:1.6; }
+.container { max-width:880px; margin:0 auto; padding:0 20px 56px; }
+h1,h2,h3 { line-height:1.25; margin:0; }
+p { margin:0; }
+button, input { font:inherit; color:inherit; }
+:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
+[hidden] { display:none !important; }
+
+.masthead { display:flex; align-items:center; justify-content:space-between; padding:18px 0; gap:12px; }
+.wordmark { font-weight:700; font-size:1.25rem; background:var(--strip); color:var(--mark); padding:3px 12px 5px; border-radius:8px; }
+.proto-tag { font-size:.8rem; color:var(--ink-2); border:1px solid var(--line); border-radius:999px; padding:2px 10px; }
+
+.hero { padding:18px 0 8px; }
+.hero h1 { font-size:clamp(1.8rem, 5.4vw, 3rem); font-weight:700; max-width:16ch; letter-spacing:-.01em; }
+.hero .intro { color:var(--ink-2); margin-top:12px; max-width:56ch; font-size:1.05rem; }
+
+/* ---------- timeline (the one bold element) ---------- */
+.timeline { margin:22px 0 4px; }
+.timeline-track { position:relative; height:64px; background:var(--strip); border-radius:10px; overflow:hidden; }
+.timeline-track::before, .timeline-track::after {
+  content:""; position:absolute; inset-inline:0; height:5px;
+  background:repeating-linear-gradient(to left, var(--strip-2) 0 7px, transparent 7px 14px);
+}
+.timeline-track::before { top:6px; } .timeline-track::after { bottom:6px; }
+.timeline-mark {
+  position:absolute; top:16px; bottom:16px; min-width:6px; border:0; padding:0;
+  background:var(--mark); border-radius:3px; transform-origin:bottom; cursor:pointer;
+}
+.timeline-mark.is-active { box-shadow:0 0 0 2px var(--surface); }
+.timeline.is-animated .timeline-mark { animation:draw .5s cubic-bezier(.3,1.4,.5,1) both; }
+@keyframes draw { from { transform:scaleY(.05); opacity:0; } to { transform:none; opacity:1; } }
+.timeline-playhead { position:absolute; top:0; bottom:0; width:2px; background:#fff; box-shadow:0 0 8px var(--mark); transition:inset-inline-start .6s linear; }
+.timeline-scale { position:relative; height:18px; margin-top:4px; font-size:.72rem; color:var(--ink-2); font-variant-numeric:tabular-nums; }
+.timeline-scale span { position:absolute; transform:translateX(50%); white-space:nowrap; }
+.timeline-scale span:first-child { transform:none; }
+.timeline figcaption { font-size:.85rem; color:var(--ink-2); margin-top:4px; }
+
+/* ---------- panels & form ---------- */
+.panel { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin-top:18px; }
+.step { display:flex; align-items:center; gap:10px; margin-bottom:14px; font-size:1.15rem; font-weight:600; }
+.step-no { width:26px; height:26px; display:grid; place-items:center; background:var(--strip); color:var(--mark); border-radius:7px; font-size:.9rem; font-weight:700; }
+.tabs { display:inline-flex; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius-sm); padding:3px; margin-bottom:14px; }
+.tab { border:0; background:transparent; padding:7px 18px; border-radius:7px; cursor:pointer; font-weight:500; color:var(--ink-2); }
+.tab[aria-selected="true"] { background:var(--surface); color:var(--ink); box-shadow:0 1px 2px rgb(0 0 0 / 12%); }
+.label { display:block; font-weight:500; color:var(--ink-2); font-size:.92rem; margin-bottom:8px; }
+.hint { font-size:.85rem; color:var(--ink-2); margin-top:8px; }
+input[type="url"] { width:100%; direction:ltr; text-align:left; padding:12px 14px; border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--surface-2); }
+.dropzone { display:grid; place-items:center; text-align:center; gap:6px; padding:28px 16px; border:2px dashed var(--line); border-radius:var(--radius); background:var(--surface-2); cursor:pointer; }
+.dropzone.is-over { border-color:var(--mark); }
+.dropzone strong { font-size:1.05rem; }
+.file-line { display:flex; align-items:center; gap:12px; padding:12px 14px; border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--surface-2); }
+.file-line .name { font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; direction:ltr; text-align:right; }
+.file-line .meta { font-size:.85rem; color:var(--ink-2); font-variant-numeric:tabular-nums; }
+.file-line > div { flex:1; min-width:0; }
+.field + .field { margin-top:18px; }
+
+.segmented { display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius-sm); padding:3px; gap:3px; }
+.segment { border:0; background:transparent; padding:9px 0; border-radius:7px; cursor:pointer; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink-2); }
+.segment[aria-checked="true"] { background:var(--strip); color:var(--mark); }
+
+.formats { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px; }
+.format { display:grid; gap:8px; justify-items:start; text-align:start; padding:12px; border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--surface); cursor:pointer; }
+.format[aria-checked="true"] { border-color:var(--primary); box-shadow:inset 0 0 0 1px var(--primary); background:var(--surface-2); }
+.format-top { display:flex; align-items:center; justify-content:space-between; width:100%; }
+.logo { width:30px; height:30px; border-radius:8px; display:grid; place-items:center; color:#fff; font-weight:700; font-size:.95rem; }
+.logo.tiktok { background:#000; box-shadow:inset 0 0 0 1px #333; } .logo.youtube { background:#e62117; } .logo.instagram { background:#c13584; }
+.shape { background:var(--line); border-radius:3px; }
+.format[aria-checked="true"] .shape { background:var(--mark); }
+.format-name { font-weight:600; font-size:.95rem; }
+.format-meta { font-size:.8rem; color:var(--ink-2); font-variant-numeric:tabular-nums; }
+
+.btn { border:1px solid transparent; border-radius:var(--radius-sm); padding:11px 18px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:8px; }
+.btn:disabled { opacity:.45; cursor:not-allowed; }
+.btn.primary { background:var(--primary); color:var(--primary-ink); }
+.btn.big { width:100%; padding:15px; font-size:1.08rem; margin-top:18px; }
+.btn.ghost { background:var(--surface-2); border-color:var(--line); color:var(--ink); }
+.btn.danger { background:var(--danger); color:#fff; }
+.btn.small { padding:8px 12px; font-size:.9rem; }
+
+.alert { background:var(--danger-bg); color:var(--danger); border-radius:var(--radius-sm); padding:12px 14px; margin-top:14px; }
+.notice { background:var(--notice-bg); border-radius:var(--radius-sm); padding:12px 14px; margin-top:14px; font-size:.92rem; }
+
+progress { width:100%; height:10px; appearance:none; -webkit-appearance:none; border:0; border-radius:99px; background:var(--surface-2); overflow:hidden; margin:10px 0 6px; }
+progress::-webkit-progress-bar { background:var(--surface-2); }
+progress::-webkit-progress-value { background:var(--mark); }
+progress::-moz-progress-bar { background:var(--mark); }
+.row { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+.muted { color:var(--ink-2); }
+.num { font-variant-numeric:tabular-nums; }
+
+/* ---------- clips ---------- */
+.results-head { margin-top:28px; display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
+.round-label { margin:18px 0 10px; color:var(--ink-2); font-weight:600; }
+.clips { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:16px; }
+.clip { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column; scroll-margin:90px; }
+.clip.is-highlighted { box-shadow:0 0 0 3px var(--mark); }
+.clip-media { position:relative; background:#000; width:100%; }
+.clip-media img, .clip-media video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 40%; display:block; }
+.clip-rank { position:absolute; top:10px; inset-inline-start:10px; min-width:30px; height:30px; padding:0 8px; display:grid; place-items:center; background:var(--mark); color:var(--mark-ink); border-radius:8px; font-weight:700; z-index:2; pointer-events:none; }
+.play { position:absolute; inset:0; margin:auto; width:62px; height:62px; border-radius:50%; border:0; background:var(--mark); color:var(--mark-ink); cursor:pointer; z-index:2; display:grid; place-items:center; }
+.play svg { width:24px; height:24px; }
+.clip-body { padding:14px; display:grid; gap:6px; flex:1; align-content:start; }
+.clip-title { font-size:1rem; font-weight:600; }
+.clip-meta { display:flex; justify-content:space-between; font-size:.83rem; color:var(--ink-2); font-variant-numeric:tabular-nums; }
+.clip-reason { font-size:.83rem; color:var(--ink-2); }
+.clip-actions { display:flex; gap:8px; margin-top:8px; }
+.clip-actions .btn { flex:1; }
+
+.more-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+.more-actions .btn { flex:1 1 200px; }
+.done { text-align:center; padding:48px 22px; }
+.done h2 { font-size:1.5rem; margin-bottom:10px; }
+.done .btn { margin-top:22px; }
+
+dialog { border:0; border-radius:var(--radius); padding:24px; max-width:min(440px, calc(100vw - 32px)); background:var(--surface); color:var(--ink); box-shadow:0 24px 60px rgb(0 0 0 / 35%); }
+dialog::backdrop { background:rgb(10 15 21 / 55%); }
+dialog h3 { font-size:1.2rem; margin-bottom:8px; }
+dialog .more-actions { margin-top:18px; }
+
+.how { margin-top:36px; color:var(--ink-2); font-size:.9rem; max-width:62ch; }
+.how h3 { color:var(--ink); font-size:1rem; margin-bottom:6px; }
+
+@media (max-width:560px) {
+  .container { padding-inline:14px; }
+  .panel { padding:16px; }
+  .segmented { grid-template-columns:repeat(4, minmax(0,1fr)); }
+  .formats { grid-template-columns:1fr 1fr; }
+  .clips { grid-template-columns:1fr 1fr; gap:10px; }
+  .clip-actions { flex-direction:column; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,*::before,*::after { animation:none !important; transition:none !important; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="masthead">
+    <span class="wordmark">لقطات</span>
+    <span class="proto-tag">نموذج أولي</span>
+  </header>
+
+  <!-- ================= START ================= -->
+  <main id="screen-start">
+    <section class="hero">
+      <h1>استخرج لقطاتك بأسرع طريقة وبدون مونتاج</h1>
+      <p class="intro">اختر فيديو، ونرجّع لك أفضل لحظاته مقاطع قصيرة جاهزة للنشر. في هذا النموذج التحليل يصير داخل متصفحك، والفيديو ما يطلع من جهازك.</p>
+      <div id="hero-timeline"></div>
+    </section>
+
+    <section class="panel">
+      <div class="step"><span class="step-no">1</span>الفيديو</div>
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" id="tab-file" aria-selected="true">من جهازك</button>
+        <button class="tab" role="tab" id="tab-url" aria-selected="false">رابط</button>
+      </div>
+
+      <div id="pane-file">
+        <label class="dropzone" id="dropzone">
+          <input type="file" id="file-input" accept="video/*" hidden>
+          <strong>اختر فيديو أو اسحبه هنا</strong>
+          <span class="muted">MP4 أو MOV، بحد أقصى ٤ ساعات</span>
+        </label>
+        <div class="file-line" id="file-line" hidden>
+          <div><div class="name" id="file-name"></div><div class="meta" id="file-meta"></div></div>
+          <button class="btn ghost small" id="file-change">تغيير</button>
+        </div>
+      </div>
+
+      <div id="pane-url" hidden>
+        <label class="label" for="url-input">رابط الفيديو</label>
+        <input type="url" id="url-input" placeholder="https://" inputmode="url" autocomplete="off">
+        <p class="hint">Kick وTwitch وTikTok وYouTube ومعظم مواقع الفيديو.</p>
+        <p class="notice">جلب الفيديو من الروابط يحتاج الخادم، وهو غير متاح في هذا النموذج. نزّل الفيديو وارفعه من «من جهازك» لتجربة الاستخراج.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="step"><span class="step-no">2</span>الإعدادات</div>
+      <div class="field">
+        <span class="label" id="count-label">عدد اللقطات</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="count-label" id="count-picker"></div>
+      </div>
+      <div class="field">
+        <span class="label" id="format-label">المنصة والمقاس</span>
+        <div class="formats" role="radiogroup" aria-labelledby="format-label" id="format-picker"></div>
+      </div>
+    </section>
+
+    <div class="alert" id="start-error" hidden></div>
+    <button class="btn primary big" id="start-btn" disabled>استخرج اللقطات</button>
+
+    <section class="how">
+      <h3>كيف يشتغل النموذج؟</h3>
+      <p>يحلل صوت الفيديو كل نصف ثانية: الضحك، ارتفاع الحماس، والقفزات المفاجئة في الصوت، ويقارنها بمستوى الفيديو نفسه حوله. يختار أقوى اللحظات ويبدأ وينهي كل لقطة عند وقفة في الكلام، بطول ٢٠ إلى ٤٥ ثانية بدون تداخل. النسخة الكاملة على الخادم تضيف تفريغ الكلام، تحليل المشاهد، متابعة الوجه في القص، وجلب الروابط.</p>
+    </section>
+  </main>
+
+  <!-- ================= JOB ================= -->
+  <main id="screen-job" hidden>
+    <div id="job-timeline"></div>
+
+    <section class="panel" id="progress-panel">
+      <div class="row"><h2 style="font-size:1.2rem">نجهّز لقطاتك</h2><span class="num muted" id="progress-pct">0٪</span></div>
+      <progress id="progress" max="1" value="0"></progress>
+      <p class="muted" id="progress-stage"></p>
+      <button class="btn ghost small" id="cancel-btn" style="margin-top:12px">إلغاء</button>
+    </section>
+
+    <div class="alert" id="job-error" hidden></div>
+
+    <section id="results" hidden>
+      <div class="results-head">
+        <h2>لقطاتك</h2>
+        <span class="muted num" id="results-count"></span>
+      </div>
+      <div id="rounds"></div>
+
+      <section class="panel" id="more-panel">
+        <h2 style="font-size:1.2rem">هل تريد لقطات أكثر؟</h2>
+        <p class="muted" style="margin-top:6px">نستخرج لقطات جديدة من نفس الفيديو، بدون تكرار اللقطات السابقة.</p>
+        <div class="field" style="margin-top:14px">
+          <span class="label" id="more-count-label">عدد اللقطات الإضافية</span>
+          <div class="segmented" role="radiogroup" aria-labelledby="more-count-label" id="more-count-picker"></div>
+        </div>
+        <p class="notice" id="no-more" hidden>ما لقينا لحظات جديدة مميزة غير اللقطات اللي استخرجناها.</p>
+        <div class="more-actions">
+          <button class="btn primary" id="more-yes">نعم، استخرج المزيد</button>
+          <button class="btn ghost" id="more-no">لا، احذف الفيديو</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- ================= DONE ================= -->
+  <main id="screen-done" hidden>
+    <section class="done">
+      <h2>حذفنا الفيديو وكل ملفاته</h2>
+      <p class="muted">ما بقي شيء من الفيديو في هذه الصفحة. اللقطات اللي حفظتها موجودة على جهازك.</p>
+      <button class="btn primary" id="restart-btn">ابدأ بفيديو جديد</button>
+    </section>
+  </main>
+</div>
+
+<dialog id="confirm">
+  <h3>حذف الفيديو نهائيًا؟</h3>
+  <p class="muted">سنحذف الفيديو وكل اللقطات الآن. احفظ اللقطات اللي تبيها قبل المتابعة.</p>
+  <div class="more-actions">
+    <button class="btn danger" id="confirm-yes">احذف نهائيًا</button>
+    <button class="btn ghost" id="confirm-no">رجوع</button>
+  </div>
+</dialog>
+
+<script>
+"use strict";
+/* =====================================================================
+   Lqtat — browser prototype.
+   Pipeline (mirrors backend/app/pipeline, audio-only):
+     1. read the audio track → loudness envelope at 50 Hz
+     2. per 0.5 s hop: energy, laughter (3.5–7 Hz loudness modulation), rise
+     3. robust z-scores against a local 2-minute baseline → one score curve
+     4. peaks → 20–45 s windows snapped to pauses, no overlap, sorted
+     5. preview with CSS crop; export records a reframed canvas (MediaRecorder)
+   ===================================================================== */
+
+const MAX_DURATION = 4 * 3600;
+const CLIP_MIN = 20, CLIP_MAX = 45, CLIP_TARGET = 32;
+const COUNTS = [1, 3, 5, 10, 15, 20, 30];
+const FORMATS = [
+  { key: "tiktok", name: "TikTok", platform: "tiktok", letter: "T", w: 1080, h: 1920, ratio: "9:16" },
+  { key: "youtube_shorts", name: "YouTube Shorts", platform: "youtube", letter: "Y", w: 1080, h: 1920, ratio: "9:16" },
+  { key: "youtube", name: "YouTube", platform: "youtube", letter: "Y", w: 1920, h: 1080, ratio: "16:9" },
+  { key: "instagram_reels", name: "Instagram Reels", platform: "instagram", letter: "I", w: 1080, h: 1920, ratio: "9:16" },
+  { key: "instagram_feed", name: "Instagram Feed", platform: "instagram", letter: "I", w: 1080, h: 1350, ratio: "4:5" },
+];
+const AR_DIGITS = "٠١٢٣٤٥٦٧٨٩";
+const ar = (n) => String(n).replace(/\d/g, (d) => AR_DIGITS[d]);
+
+const S = {
+  file: null, url: null, duration: 0, width: 0, height: 0,
+  count: 5, moreCount: 5, format: "tiktok",
+  analysis: null, rounds: [], cancelled: false, busy: false,
+};
+
+const $ = (id) => document.getElementById(id);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const yieldUI = () => new Promise((r) => setTimeout(r, 0));
+
+function clock(sec) {
+  const s = Math.max(0, Math.round(sec));
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
+  const pad = (v) => String(v).padStart(2, "0");
+  return h ? `${h}:${pad(m)}:${pad(x)}` : `${m}:${pad(x)}`;
+}
+function bytes(n) {
+  const u = ["B", "KB", "MB", "GB"]; let i = 0;
+  while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+  return `${n.toFixed(i ? 1 : 0)} ${u[i]}`;
+}
+
+/* ------------------------------------------------------------ timeline */
+function tickStep(d) { return d > 7200 ? 3600 : d > 3600 ? 1800 : d > 1200 ? 600 : d > 300 ? 60 : 30; }
+
+function renderTimeline(host, { duration, marks = [], playhead = null, activeId = null, animate = false, caption = "", onClick = null }) {
+  const pct = (s) => `${Math.min(100, (s / duration) * 100)}%`;
+  const step = tickStep(duration);
+  const fig = document.createElement("figure");
+  fig.className = "timeline" + (animate ? " is-animated" : "");
+  fig.style.margin = "22px 0 4px";
+  const track = document.createElement("div");
+  track.className = "timeline-track";
+  track.setAttribute("role", "img");
+  track.setAttribute("aria-label", caption || `مدة الفيديو ${clock(duration)}`);
+  marks.forEach((m, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "timeline-mark" + (activeId === m.id ? " is-active" : "");
+    b.style.insetInlineStart = pct(m.start);
+    b.style.width = `max(6px, ${pct(m.end - m.start)})`;
+    b.style.animationDelay = `${300 + i * 140}ms`;
+    b.setAttribute("aria-label", `${clock(m.start)} – ${clock(m.end)}`);
+    b.tabIndex = onClick ? 0 : -1;
+    if (onClick) b.onclick = () => onClick(m.id);
+    track.appendChild(b);
+  });
+  if (playhead != null) {
+    const p = document.createElement("span");
+    p.className = "timeline-playhead";
+    p.style.insetInlineStart = pct(playhead * duration);
+    track.appendChild(p);
+  }
+  const scale = document.createElement("div");
+  scale.className = "timeline-scale";
+  scale.setAttribute("aria-hidden", "true");
+  for (let s = 0; s <= duration + 0.01; s += step) {
+    const t = document.createElement("span");
+    t.style.insetInlineStart = pct(s);
+    t.textContent = clock(s);
+    scale.appendChild(t);
+  }
+  fig.append(track, scale);
+  if (caption) { const c = document.createElement("figcaption"); c.textContent = caption; fig.appendChild(c); }
+  host.replaceChildren(fig);
+}
+
+renderTimeline($("hero-timeline"), {
+  duration: MAX_DURATION, animate: true, caption: "فيديو حتى ٤ ساعات",
+  marks: [[1150, 1185], [3020, 3060], [4700, 4728], [7300, 7342], [9050, 9080], [11400, 11444], [13100, 13134]]
+    .map(([a, b], i) => ({ id: "d" + i, start: a, end: b })),
+});
+
+/* ------------------------------------------------------------ pickers */
+function renderCounts(host, get, set) {
+  host.replaceChildren(...COUNTS.map((n) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "segment"; b.setAttribute("role", "radio");
+    b.setAttribute("aria-checked", String(get() === n));
+    b.textContent = ar(n);
+    b.onclick = () => { set(n); renderCounts(host, get, set); };
+    return b;
+  }));
+}
+renderCounts($("count-picker"), () => S.count, (n) => (S.count = n));
+renderCounts($("more-count-picker"), () => S.moreCount, (n) => (S.moreCount = n));
+
+function renderFormats() {
+  $("format-picker").replaceChildren(...FORMATS.map((f) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "format"; b.setAttribute("role", "radio");
+    b.setAttribute("aria-checked", String(S.format === f.key));
+    const big = Math.max(f.w, f.h), sw = (f.w / big) * 26, sh = (f.h / big) * 26;
+    b.innerHTML = `
+      <span class="format-top">
+        <span class="logo ${f.platform}" aria-hidden="true">${f.letter}</span>
+        <span class="shape" style="width:${sw}px;height:${sh}px" aria-hidden="true"></span>
+      </span>
+      <span class="format-name">${f.name}</span>
+      <span class="format-meta">${f.ratio} · ${f.w}×${f.h}</span>`;
+    b.onclick = () => { S.format = f.key; renderFormats(); };
+    return b;
+  }));
+}
+renderFormats();
+
+/* ------------------------------------------------------------ source */
+function setTab(which) {
+  $("tab-file").setAttribute("aria-selected", String(which === "file"));
+  $("tab-url").setAttribute("aria-selected", String(which === "url"));
+  $("pane-file").hidden = which !== "file";
+  $("pane-url").hidden = which !== "url";
+  updateStart();
+}
+$("tab-file").onclick = () => setTab("file");
+$("tab-url").onclick = () => setTab("url");
+
+function showStartError(msg) { const e = $("start-error"); e.textContent = msg || ""; e.hidden = !msg; }
+function updateStart() {
+  const fileTab = !$("pane-file").hidden;
+  $("start-btn").disabled = !fileTab || !S.file || S.duration > MAX_DURATION || S.busy;
+}
+
+function readMeta(url) {
+  return new Promise((resolve, reject) => {
+    const v = document.createElement("video");
+    v.preload = "metadata"; v.muted = true; v.playsInline = true;
+    v.onloadedmetadata = () => resolve({ duration: v.duration, width: v.videoWidth, height: v.videoHeight });
+    v.onerror = () => reject(new Error("meta"));
+    v.src = url;
+  });
+}
+
+async function pickFile(file) {
+  showStartError("");
+  if (!file) return;
+  if (S.url) URL.revokeObjectURL(S.url);
+  S.file = file; S.url = URL.createObjectURL(file);
+  $("dropzone").hidden = true; $("file-line").hidden = false;
+  $("file-name").textContent = file.name;
+  $("file-meta").textContent = `${bytes(file.size)} · نقرأ المدة…`;
+  try {
+    const m = await readMeta(S.url);
+    if (!isFinite(m.duration) || !m.width) throw new Error("bad");
+    Object.assign(S, { duration: m.duration, width: m.width, height: m.height });
+    $("file-meta").textContent = `${bytes(file.size)} · ${clock(m.duration)} · ${m.width}×${m.height}`;
+    if (m.duration > MAX_DURATION) showStartError("مدة الفيديو أطول من ٤ ساعات. قصّ الجزء اللي يهمك ثم أعد المحاولة.");
+  } catch {
+    S.file = null;
+    showStartError("المتصفح ما قدر يقرأ هذا الملف. جرّب ملف MP4 أو MOV.");
+  }
+  updateStart();
+}
+$("file-input").onchange = (e) => pickFile(e.target.files[0]);
+$("file-change").onclick = () => $("file-input").click();
+const dz = $("dropzone");
+dz.ondragover = (e) => { e.preventDefault(); dz.classList.add("is-over"); };
+dz.ondragleave = () => dz.classList.remove("is-over");
+dz.ondrop = (e) => { e.preventDefault(); dz.classList.remove("is-over"); pickFile(e.dataTransfer.files[0]); };
+
+/* ------------------------------------------------------------ screens */
+function show(screen) {
+  for (const s of ["start", "job", "done"]) $("screen-" + s).hidden = s !== screen;
+  window.scrollTo({ top: 0 });
+}
+
+function setProgress(p, stage) {
+  $("progress").value = p;
+  $("progress-pct").textContent = ar(Math.round(p * 100)) + "٪";
+  if (stage) $("progress-stage").textContent = stage;
+  renderTimeline($("job-timeline"), { duration: S.duration, playhead: p, marks: allClips().map(markOf) });
+}
+
+const allClips = () => S.rounds.flat();
+const markOf = (c) => ({ id: c.id, start: c.start, end: c.end });
+
+/* =====================================================================
+   1. Audio → loudness envelope (50 frames per second of media time)
+   ===================================================================== */
+const ENV_FPS = 50;
+
+async function envelopeByDecode(file, onP) {
+  const buf = await file.arrayBuffer();
+  if (S.cancelled) throw new Error("cancelled");
+  onP(0.05);
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  const ctx = new Ctx();
+  let audio;
+  try { audio = await new Promise((res, rej) => ctx.decodeAudioData(buf, res, rej)); }
+  finally { ctx.close(); }
+  const sr = audio.sampleRate, frame = Math.round(sr / ENV_FPS);
+  const n = Math.floor(audio.length / frame);
+  const env = new Float32Array(n);
+  const chans = []; for (let c = 0; c < audio.numberOfChannels; c++) chans.push(audio.getChannelData(c));
+  const stride = 2;
+  for (let i = 0; i < n; i++) {
+    let s = 0, cnt = 0; const a = i * frame, b = a + frame;
+    for (const ch of chans) for (let k = a; k < b; k += stride) { s += ch[k] * ch[k]; cnt++; }
+    env[i] = Math.sqrt(s / Math.max(cnt, 1));
+    if (i % 20000 === 0) { onP(0.05 + 0.95 * (i / n)); await yieldUI(); if (S.cancelled) throw new Error("cancelled"); }
+  }
+  return env;
+}
+
+/* Large files: play the video fast and silent through Web Audio instead of
+   decoding it all into memory. Samples are mapped back to media time. */
+async function envelopeByPlayback(url, duration, ctx, onP) {
+  const v = document.createElement("video");
+  v.src = url; v.preload = "auto"; v.playsInline = true;
+  v.preservesPitch = false; v.mozPreservesPitch = false; v.webkitPreservesPitch = false;
+  await new Promise((r, j) => { v.onloadedmetadata = r; v.onerror = j; });
+  const src = ctx.createMediaElementSource(v);
+  const proc = ctx.createScriptProcessor(4096, 2, 1);
+  const mute = ctx.createGain(); mute.gain.value = 0;
+  src.connect(proc); proc.connect(mute); mute.connect(ctx.destination);
+  const env = new Float32Array(Math.ceil(duration * ENV_FPS) + 2).fill(-1);
+  proc.onaudioprocess = (e) => {
+    const rate = v.playbackRate || 1, sr = e.inputBuffer.sampleRate;
+    const chunk = Math.max(8, Math.round((sr / ENV_FPS) / rate));
+    const L = e.inputBuffer.getChannelData(0);
+    const R = e.inputBuffer.numberOfChannels > 1 ? e.inputBuffer.getChannelData(1) : L;
+    const blockMedia = (L.length / sr) * rate;
+    const t0 = Math.max(0, v.currentTime - blockMedia);
+    for (let k = 0, j = 0; k + chunk <= L.length; k += chunk, j++) {
+      let s = 0; for (let q = k; q < k + chunk; q++) s += (L[q] * L[q] + R[q] * R[q]) / 2;
+      const idx = Math.floor((t0 + (k / sr) * rate) * ENV_FPS);
+      if (idx >= 0 && idx < env.length) env[idx] = Math.sqrt(s / chunk);
+    }
+  };
+  v.playbackRate = 16;
+  await v.play();
+  await new Promise((resolve, reject) => {
+    const tick = setInterval(() => {
+      if (S.cancelled) { clearInterval(tick); v.pause(); reject(new Error("cancelled")); return; }
+      onP(Math.min(1, v.currentTime / duration));
+      if (v.ended || v.currentTime >= duration - 0.05) { clearInterval(tick); resolve(); }
+    }, 400);
+  });
+  v.pause(); src.disconnect(); proc.disconnect(); v.removeAttribute("src"); v.load();
+  let last = 0; for (let i = 0; i < env.length; i++) { if (env[i] < 0) env[i] = last; else last = env[i]; }
+  return env;
+}
+
+/* =====================================================================
+   2–3. Features and the score curve (0.5 s hops)
+   ===================================================================== */
+const HOP = 0.5, PER = ENV_FPS * HOP;
+
+function median(arr) { const a = Array.from(arr).sort((x, y) => x - y); return a.length ? a[a.length >> 1] : 0; }
+
+/* (x − local median) / local MAD, baseline over ±2 minutes. */
+function robustZ(x, win = 240, step = 10) {
+  const n = x.length, meds = [], mads = [], at = [];
+  for (let c = 0; c < n; c += step) {
+    const a = Math.max(0, c - win), b = Math.min(n, c + win), w = [];
+    for (let i = a; i < b; i += 2) w.push(x[i]);
+    const m = median(w);
+    meds.push(m); mads.push(median(w.map((v) => Math.abs(v - m)))); at.push(c);
+  }
+  const z = new Float32Array(n);
+  for (let i = 0; i < n; i++) {
+    const k = Math.min(at.length - 1, Math.floor(i / step)), k2 = Math.min(at.length - 1, k + 1);
+    const f = k2 === k ? 0 : (i - at[k]) / (at[k2] - at[k]);
+    const m = meds[k] + (meds[k2] - meds[k]) * f, d = mads[k] + (mads[k2] - mads[k]) * f;
+    z[i] = (x[i] - m) / (1.4826 * d + 1e-3);
+  }
+  return z;
+}
+
+async function buildTimeline(env, duration, onP) {
+  const n = env.length, nH = Math.max(1, Math.floor(Math.min(duration, n / ENV_FPS) / HOP));
+  const db = new Float32Array(n);
+  for (let i = 0; i < n; i++) db[i] = Math.max(-80, 20 * Math.log10(env[i] + 1e-6));
+
+  const energy = new Float32Array(nH);
+  for (let h = 0; h < nH; h++) {
+    let s = 0, c = 0;
+    for (let k = h * PER; k < h * PER + PER && k < n; k++) { s += env[k] * env[k]; c++; }
+    energy[h] = 10 * Math.log10(s / Math.max(c, 1) + 1e-10);
+  }
+
+  // Laughter: share of loudness-envelope modulation between 3.5 and 7 Hz
+  // in a 2 s window, times modulation depth. A trained classifier replaces
+  // this on the server when available.
+  const W = 2 * ENV_FPS, freqs = [];
+  for (let f = 1; f <= 12; f += 0.5) freqs.push(f);
+  const cos = freqs.map((f) => Float32Array.from({ length: W }, (_, k) => Math.cos((2 * Math.PI * f * k) / ENV_FPS)));
+  const sin = freqs.map((f) => Float32Array.from({ length: W }, (_, k) => Math.sin((2 * Math.PI * f * k) / ENV_FPS)));
+  const laugh = new Float32Array(nH);
+  for (let h = 0; h < nH; h++) {
+    let a = h * PER + (PER >> 1) - W / 2; if (a < 0) a = 0;
+    let b = a + W; if (b > n) { b = n; a = Math.max(0, b - W); }
+    const len = b - a; if (len < W / 2) continue;
+    let mean = 0; for (let k = a; k < b; k++) mean += db[k]; mean /= len;
+    let vr = 0; for (let k = a; k < b; k++) vr += (db[k] - mean) ** 2;
+    const std = Math.sqrt(vr / len);
+    let band = 0, tot = 0;
+    for (let fi = 0; fi < freqs.length; fi++) {
+      let re = 0, im = 0; const C = cos[fi], Sn = sin[fi];
+      for (let k = 0; k < len; k++) { const x = db[a + k] - mean; re += x * C[k]; im += x * Sn[k]; }
+      const p = re * re + im * im; tot += p;
+      if (freqs[fi] >= 3.5 && freqs[fi] <= 7) band += p;
+    }
+    laugh[h] = (tot > 0 ? band / tot : 0) * Math.min(1, std / 6);
+    if (h % 1500 === 0) { onP(0.5 * h / nH); await yieldUI(); if (S.cancelled) throw new Error("cancelled"); }
+  }
+
+  const rise = new Float32Array(nH);
+  for (let h = 0; h < nH; h++) {
+    const w = []; for (let k = Math.max(0, h - 12); k < h - 2; k++) w.push(energy[k]);
+    rise[h] = w.length ? Math.max(0, energy[h] - median(w)) : 0;
+  }
+
+  onP(0.6);
+  const zE = robustZ(energy);
+  // Laughter only counts when it is louder than its surroundings.
+  const gated = laugh.map((v, i) => v / (1 + Math.exp(-zE[i])));
+  const zL = robustZ(gated), zR = robustZ(rise);
+  onP(0.8);
+
+  const clampZ = (v) => Math.max(-3, Math.min(6, v));
+  const raw = new Float32Array(nH);
+  for (let h = 0; h < nH; h++) raw[h] = 0.55 * clampZ(zL[h]) + 0.30 * clampZ(zE[h]) + 0.15 * clampZ(zR[h]);
+  const score = new Float32Array(nH);
+  for (let h = 0; h < nH; h++) {
+    let s = 0, c = 0; for (let k = Math.max(0, h - 2); k <= Math.min(nH - 1, h + 2); k++) { s += raw[k]; c++; }
+    score[h] = s / c;
+  }
+
+  // Pauses = runs of ≥ 0.25 s quieter than the local floor + 6 dB. Clips
+  // start and end inside these so no word is cut.
+  const pauses = [0];
+  const block = 30 * ENV_FPS;
+  for (let a = 0; a < n; a += block) {
+    const b = Math.min(n, a + block), w = [];
+    for (let k = a; k < b; k += 3) w.push(db[k]);
+    w.sort((x, y) => x - y);
+    const floor = w[Math.floor(w.length * 0.15)] ?? -80;
+    let run = -1;
+    for (let k = a; k <= b; k++) {
+      const quiet = k < b && db[k] < floor + 6;
+      if (quiet && run < 0) run = k;
+      if (!quiet && run >= 0) { if (k - run >= 13) pauses.push((run + k) / 2 / ENV_FPS); run = -1; }
+    }
+  }
+  pauses.push(duration);
+  onP(1);
+  return { nH, score, zE, zL, zR, pauses: pauses.sort((x, y) => x - y) };
+}
+
+/* =====================================================================
+   4. Pick moments
+   ===================================================================== */
+function snapWindow(t, pauses, duration) {
+  const idealS = t - CLIP_TARGET * 0.6, idealE = t + CLIP_TARGET * 0.4;
+  const S0 = pauses.filter((p) => p >= t - CLIP_MAX + 3 && p <= t - 3);
+  const E0 = pauses.filter((p) => p >= t + 3 && p <= t + CLIP_MAX - 3);
+  let best = null, bestCost = Infinity;
+  for (const s of S0) for (const e of E0) {
+    const len = e - s; if (len < CLIP_MIN || len > CLIP_MAX) continue;
+    const cost = Math.abs(s - idealS) + Math.abs(e - idealE);
+    if (cost < bestCost) { bestCost = cost; best = [s, e]; }
+  }
+  let [s, e] = best || [idealS, idealS + CLIP_TARGET];
+  if (s < 0) { e -= s; s = 0; }
+  if (e > duration) { s -= e - duration; e = duration; s = Math.max(0, s); }
+  return [s, e];
+}
+
+const TITLES = {
+  laugh: ["موجة ضحك", "ضحكة ما وقفت", "لحظة ضحك جماعي", "الكل انفجر ضحك"],
+  hype: ["انفجار حماس", "صراخ وتفاعل", "لحظة الذروة", "ردة فعل قوية"],
+  energy: ["لحظة شدّت الانتباه", "ارتفاع في الحماس", "نقطة تحوّل", "مقطع حيوي"],
+};
+const REASONS = { laugh: "ضحك واضح وتفاعل أعلى من باقي الفيديو", hype: "قفزة مفاجئة في الصوت والحماس", energy: "طاقة أعلى من المعتاد حول هذه اللحظة" };
+
+function findClips(tl, duration, count, used) {
+  const nH = tl.nH;
+  if (duration <= CLIP_MIN) return [{ start: 0, end: duration, raw: 1, kind: "energy" }];
+  const blocked = new Uint8Array(nH);
+  const block = (a, b) => { for (let h = Math.max(0, Math.floor(a / HOP)); h < Math.min(nH, Math.ceil(b / HOP)); h++) blocked[h] = 1; };
+  used.forEach((c) => block(c.start - 5, c.end + 5));
+  const overlaps = (s, e, list) => list.some((c) => s < c.end + 1 && e > c.start - 1);
+
+  const order = Array.from({ length: nH }, (_, i) => i).sort((a, b) => tl.score[b] - tl.score[a]);
+  const out = [];
+  for (const h of order) {
+    if (out.length >= count) break;
+    if (blocked[h]) continue;
+    if (tl.score[h] <= 0.15) break;              // nothing notable left
+    const t = h * HOP + HOP / 2;
+    const [s, e] = snapWindow(t, tl.pauses, duration);
+    if (e - s < Math.min(CLIP_MIN, duration) - 0.5 || overlaps(s, e, out) || overlaps(s, e, used)) { block(t - 10, t + 10); continue; }
+    let sum = 0, mx = -Infinity, sL = 0, sE = 0, mR = -Infinity, c = 0;
+    for (let k = Math.floor(s / HOP); k < Math.min(nH, Math.ceil(e / HOP)); k++) {
+      sum += tl.score[k]; mx = Math.max(mx, tl.score[k]); sL += tl.zL[k]; sE += tl.zE[k]; mR = Math.max(mR, tl.zR[k]); c++;
+    }
+    const mL = sL / c, mE = sE / c;
+    const kind = mL > 0.8 && mL >= mE ? "laugh" : mR > 2.5 ? "hype" : "energy";
+    out.push({ start: s, end: e, raw: sum / c + 0.5 * mx, kind });
+    block(s - 5, e + 5);
+  }
+  return out.sort((a, b) => b.raw - a.raw);
+}
+
+/* =====================================================================
+   5. Thumbnails, preview, export
+   ===================================================================== */
+function cropRect(sw, sh, fmt, anchorY = 0.4) {
+  const a = fmt.w / fmt.h;
+  if (sw / sh > a) { const cw = sh * a; return { x: (sw - cw) / 2, y: 0, w: cw, h: sh }; }
+  const ch = sw / a; return { x: 0, y: (sh - ch) * anchorY, w: sw, h: ch };
+}
+
+async function makeThumbs(clips, fmt, onP) {
+  const v = document.createElement("video");
+  v.src = S.url; v.muted = true; v.playsInline = true; v.preload = "auto";
+  await new Promise((r, j) => { v.onloadeddata = r; v.onerror = j; });
+  const cv = document.createElement("canvas");
+  const tw = 360; cv.width = tw; cv.height = Math.round(tw * fmt.h / fmt.w);
+  const g = cv.getContext("2d");
+  for (let i = 0; i < clips.length; i++) {
+    const c = clips[i];
+    v.currentTime = Math.min(c.end - 0.1, c.start + Math.min(3, (c.end - c.start) / 2));
+    await Promise.race([new Promise((r) => (v.onseeked = r)), sleep(4000)]);
+    const r = cropRect(v.videoWidth, v.videoHeight, fmt);
+    try { g.drawImage(v, r.x, r.y, r.w, r.h, 0, 0, cv.width, cv.height); c.thumb = cv.toDataURL("image/jpeg", 0.75); }
+    catch { c.thumb = null; }
+    onP((i + 1) / clips.length);
+  }
+  v.removeAttribute("src"); v.load();
+}
+
+let playing = null;
+function stopPlaying() {
+  if (!playing) return;
+  playing.video.pause(); playing.video.remove(); playing.btn.hidden = false; playing = null;
+}
+
+function playClip(clip, media, btn) {
+  stopPlaying();
+  const v = document.createElement("video");
+  v.src = S.url; v.playsInline = true; v.controls = false;
+  v.onloadedmetadata = () => { v.currentTime = clip.start; v.play().catch(() => {}); };
+  v.ontimeupdate = () => { if (v.currentTime >= clip.end) stopPlaying(); };
+  v.onclick = stopPlaying;
+  media.appendChild(v);
+  btn.hidden = true;
+  playing = { video: v, btn };
+}
+
+/* Export: draw the reframed video onto a canvas at the platform size and
+   record it with its audio. Runs in real time (a 30 s clip takes ~30 s). */
+let rec = null;
+function recorderSetup() {
+  if (rec) return rec;
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  const ctx = new Ctx();
+  const v = document.createElement("video");
+  v.src = S.url; v.playsInline = true; v.preload = "auto";
+  const src = ctx.createMediaElementSource(v);
+  const dest = ctx.createMediaStreamDestination();
+  src.connect(dest);
+  rec = { ctx, v, dest };
+  return rec;
+}
+function pickMime() {
+  const opts = ["video/mp4;codecs=avc1.640028,mp4a.40.2", "video/mp4;codecs=avc1,mp4a", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"];
+  return opts.find((m) => window.MediaRecorder && MediaRecorder.isTypeSupported(m)) || "";
+}
+
+async function exportClip(clip, onP) {
+  const fmt = FORMATS.find((f) => f.key === S.format);
+  const { ctx, v, dest } = recorderSetup();
+  await ctx.resume();
+  if (v.readyState < 1) await new Promise((r) => (v.onloadedmetadata = r));
+  const cv = document.createElement("canvas");
+  cv.width = fmt.w; cv.height = fmt.h;
+  const g = cv.getContext("2d");
+  g.imageSmoothingQuality = "high";
+  const r = cropRect(v.videoWidth, v.videoHeight, fmt);
+  v.currentTime = clip.start;
+  await new Promise((res) => (v.onseeked = res));
+  g.drawImage(v, r.x, r.y, r.w, r.h, 0, 0, cv.width, cv.height);
+
+  const stream = new MediaStream([...cv.captureStream(30).getVideoTracks(), ...dest.stream.getAudioTracks()]);
+  const mime = pickMime();
+  const mr = new MediaRecorder(stream, { mimeType: mime || undefined, videoBitsPerSecond: 10_000_000, audioBitsPerSecond: 192_000 });
+  const parts = [];
+  mr.ondataavailable = (e) => e.data.size && parts.push(e.data);
+  const stopped = new Promise((res) => (mr.onstop = res));
+  mr.start(1000);
+  await v.play();
+  await new Promise((res) => {
+    const draw = () => {
+      g.drawImage(v, r.x, r.y, r.w, r.h, 0, 0, cv.width, cv.height);
+      onP((v.currentTime - clip.start) / (clip.end - clip.start));
+      if (v.currentTime >= clip.end || v.ended) return res();
+      requestAnimationFrame(draw);
+    };
+    requestAnimationFrame(draw);
+  });
+  v.pause(); mr.stop(); await stopped;
+  const type = (mr.mimeType || mime || "video/webm").split(";")[0];
+  return { blob: new Blob(parts, { type }), ext: type.includes("mp4") ? "mp4" : "webm" };
+}
+
+let downloadsApi = null;
+if (window.claude && typeof window.claude.use === "function") {
+  window.claude.use("downloads").then((d) => { downloadsApi = d; }).catch(() => {});
+}
+
+async function saveBlob(blob, filename) {
+  if (downloadsApi) { await downloadsApi.save({ filename, data: blob }); return; }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+}
+
+/* ------------------------------------------------------------ results UI */
+let activeId = null;
+function renderResults() {
+  const fmt = FORMATS.find((f) => f.key === S.format);
+  const host = $("rounds");
+  host.replaceChildren();
+  const rounds = S.rounds.map((c, i) => [i + 1, c]).reverse();
+  for (const [no, clips] of rounds) {
+    if (S.rounds.length > 1) {
+      const h = document.createElement("h3");
+      h.className = "round-label"; h.textContent = no === 1 ? "الدفعة الأولى" : `الدفعة ${ar(no)}`;
+      host.appendChild(h);
+    }
+    const grid = document.createElement("div");
+    grid.className = "clips";
+    for (const c of clips) grid.appendChild(clipCard(c, fmt));
+    host.appendChild(grid);
+  }
+  const total = allClips().length;
+  $("results-count").textContent = `${ar(total)} لقطة · ${fmt.name} ${fmt.ratio}`;
+  renderTimeline($("job-timeline"), {
+    duration: S.duration, marks: allClips().map(markOf), activeId, animate: true,
+    caption: "العلامات الصفراء مكان كل لقطة في الفيديو. اضغط أي علامة للانتقال لها.",
+    onClick: (id) => {
+      activeId = id;
+      document.querySelectorAll(".clip").forEach((el) => el.classList.toggle("is-highlighted", el.dataset.id === id));
+      document.querySelector(`.clip[data-id="${id}"]`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    },
+  });
+}
+
+function clipCard(c, fmt) {
+  const el = document.createElement("article");
+  el.className = "clip"; el.dataset.id = c.id;
+  const media = document.createElement("div");
+  media.className = "clip-media";
+  media.style.aspectRatio = `${fmt.w} / ${fmt.h}`;
+  if (fmt.h > fmt.w) media.style.maxHeight = "460px";
+  if (c.thumb) { const img = document.createElement("img"); img.src = c.thumb; img.alt = ""; media.appendChild(img); }
+  const rank = document.createElement("span"); rank.className = "clip-rank"; rank.textContent = ar(c.rank);
+  const play = document.createElement("button");
+  play.className = "play"; play.setAttribute("aria-label", "تشغيل " + c.title);
+  play.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+  play.onclick = () => playClip(c, media, play);
+  media.append(rank, play);
+
+  const body = document.createElement("div");
+  body.className = "clip-body";
+  body.innerHTML = `
+    <div class="clip-title"></div>
+    <div class="clip-meta"><span>${clock(c.end - c.start)}</span><span>من ${clock(c.start)}</span></div>
+    <div class="clip-reason"></div>`;
+  body.querySelector(".clip-title").textContent = c.title;
+  body.querySelector(".clip-reason").textContent = `${c.reason} · التقييم ${ar(c.score)}`;
+
+  const actions = document.createElement("div");
+  actions.className = "clip-actions";
+  const dl = document.createElement("button");
+  dl.className = "btn ghost small"; dl.textContent = "تنزيل";
+  const err = document.createElement("div"); err.className = "alert"; err.hidden = true;
+  dl.onclick = async () => {
+    if (!window.MediaRecorder) { err.textContent = "متصفحك ما يدعم تصدير الفيديو. جرّب Chrome أو Safari حديث."; err.hidden = false; return; }
+    stopPlaying();
+    document.querySelectorAll(".clip-actions .btn").forEach((b) => (b.disabled = true));
+    err.hidden = true;
+    try {
+      const out = c.export || (c.export = await exportClip(c, (p) => (dl.textContent = `نجهّز الملف ${ar(Math.min(100, Math.max(0, Math.round(p * 100))))}٪`)));
+      dl.textContent = "تنزيل";
+      await saveBlob(out.blob, `lqtat_${c.round}_${c.rank}.${out.ext}`);
+    } catch (e) {
+      dl.textContent = "تنزيل";
+      if (e && e.code === "declined") return;
+      err.textContent = "ما قدرنا نجهّز الملف. حاول مرة ثانية.";
+      err.hidden = false;
+    } finally {
+      document.querySelectorAll(".clip-actions .btn").forEach((b) => (b.disabled = false));
+    }
+  };
+  actions.appendChild(dl);
+  body.append(actions, err);
+  el.append(media, body);
+  return el;
+}
+
+/* ------------------------------------------------------------ job flow */
+function jobError(msg) { const e = $("job-error"); e.textContent = msg || ""; e.hidden = !msg; }
+
+async function runRound(count) {
+  const fmt = FORMATS.find((f) => f.key === S.format);
+  const round = S.rounds.length + 1;
+  const found = findClips(S.analysis, S.duration, count, allClips());
+  if (!found.length) return false;
+  const clips = found.map((c, i) => ({
+    ...c, id: `r${round}c${i + 1}`, round, rank: i + 1,
+    score: Math.max(30, Math.min(99, Math.round(55 + 15 * c.raw))),
+    title: TITLES[c.kind][i % TITLES[c.kind].length],
+    reason: REASONS[c.kind],
+  }));
+  setProgress(0.92, "نجهّز المعاينات");
+  await makeThumbs(clips, fmt, (p) => setProgress(0.92 + 0.08 * p));
+  S.rounds.push(clips);
+  return true;
+}
+
+$("start-btn").onclick = async () => {
+  if (!S.file || S.busy) return;
+  S.busy = true; S.cancelled = false; S.rounds = []; S.analysis = null; activeId = null;
+  updateStart();
+  // Created inside the click so browsers allow audio playback for analysis.
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  const liveCtx = new Ctx();
+  show("job"); jobError("");
+  $("progress-panel").hidden = false; $("results").hidden = true;
+  setProgress(0, "نقرأ الفيديو");
+  try {
+    let env;
+    const small = S.file.size <= 600 * 1024 * 1024 && S.duration <= 90 * 60;
+    const decodeP = (p) => setProgress(0.02 + 0.58 * p, "نحلل الصوت والتفاعل");
+    if (small) {
+      try { env = await envelopeByDecode(S.file, decodeP); }
+      catch (e) { if (S.cancelled) throw e; env = null; }
+    }
+    if (!env) env = await envelopeByPlayback(S.url, S.duration, liveCtx, decodeP);
+    liveCtx.close();
+    if (!env.some((x) => x > 1e-4)) throw new Error("silent");
+    S.analysis = await buildTimeline(env, S.duration, (p) => setProgress(0.6 + 0.28 * p, "نختار أقوى اللحظات"));
+    const ok = await runRound(S.count);
+    if (!ok) throw new Error("nomoments");
+    showResults();
+  } catch (e) {
+    try { liveCtx.close(); } catch {}
+    if (S.cancelled) { resetAll(); return; }
+    $("progress-panel").hidden = true;
+    const msg = e && e.message;
+    jobError(msg === "silent" ? "الفيديو ما فيه صوت نقدر نحلله. النسخة الكاملة تعتمد أيضًا على الصورة والكلام."
+      : msg === "nomoments" ? "ما لقينا لحظات بارزة في هذا الفيديو."
+      : "ما قدرنا نحلل هذا الملف في المتصفح. جرّب ملف MP4 أقصر أو متصفح Chrome.");
+    const back = document.createElement("button");
+    back.className = "btn primary"; back.style.marginTop = "12px"; back.textContent = "ابدأ من جديد";
+    back.onclick = resetAll;
+    $("job-error").appendChild(document.createElement("br"));
+    $("job-error").appendChild(back);
+  } finally {
+    S.busy = false;
+  }
+};
+
+function showResults() {
+  $("progress-panel").hidden = true;
+  $("results").hidden = false;
+  S.moreCount = S.count; renderCounts($("more-count-picker"), () => S.moreCount, (n) => (S.moreCount = n));
+  renderResults();
+}
+
+$("cancel-btn").onclick = () => { S.cancelled = true; };
+
+$("more-yes").onclick = async () => {
+  $("more-yes").disabled = true; $("no-more").hidden = true;
+  $("progress-panel").hidden = false;
+  setProgress(0.9, "نبحث عن لحظات جديدة");
+  const ok = await runRound(S.moreCount);
+  $("progress-panel").hidden = true;
+  $("more-yes").disabled = false;
+  if (!ok) { $("no-more").hidden = false; $("more-yes").hidden = true; }
+  renderResults();
+  if (ok) document.querySelector(".clips")?.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
+$("more-no").onclick = () => $("confirm").showModal();
+$("confirm-no").onclick = () => $("confirm").close();
+$("confirm-yes").onclick = () => { $("confirm").close(); wipe(); show("done"); };
+$("restart-btn").onclick = resetAll;
+
+/* "No more clips": drop the video, the analysis, previews and exports. */
+function wipe() {
+  stopPlaying();
+  if (rec) { try { rec.ctx.close(); } catch {} rec.v.removeAttribute("src"); rec.v.load(); rec = null; }
+  if (S.url) URL.revokeObjectURL(S.url);
+  Object.assign(S, { file: null, url: null, duration: 0, width: 0, height: 0, analysis: null, rounds: [], cancelled: false });
+  $("file-input").value = "";
+  $("rounds").replaceChildren(); $("job-timeline").replaceChildren();
+}
+
+function resetAll() {
+  wipe();
+  $("dropzone").hidden = false; $("file-line").hidden = true;
+  $("more-yes").hidden = false; $("no-more").hidden = true;
+  showStartError(""); jobError("");
+  S.busy = false; updateStart();
+  show("start");
+}
+</script>
+</body>
+</html>
